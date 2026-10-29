@@ -1,0 +1,14 @@
+# Proteus temporary files
+*.workspace
+*.pdsbak
+*.pdsbak.*
+
+# STM32CubeIDE build output (chỉ giữ lại thư mục Debug nếu cần nộp hex, hoặc ignore sạch trừ file .hex)
+*.o
+*.d
+*.su
+*.map
+
+# IDE settings
+.metadata/
+.settings/
