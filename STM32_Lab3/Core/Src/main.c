@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "software_timer.h"
 
 /* USER CODE END Includes */
 
@@ -89,14 +90,18 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-HAL_TIM_Base_Start_IT(&htim2);
-
+  HAL_TIM_Base_Start_IT(&htim2);
+  setTimer1(250);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    if (timer1_flag == 1) {
+      setTimer1(250);
+      HAL_GPIO_TogglePin(RED_1_GPIO_Port, RED_1_Pin);
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -235,7 +240,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == TIM2) {
+    timerRun();
+  }
+}
 /* USER CODE END 4 */
 
 /**
