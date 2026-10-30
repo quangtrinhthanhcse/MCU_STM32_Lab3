@@ -99,6 +99,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
   setTimer1(250);
   setTimer2(250);
+  setTimer4(10);
   traffic_light_init();
   /* USER CODE END 2 */
 
@@ -107,6 +108,11 @@ int main(void)
 
   while (1)
   {
+    if (timer4_flag == 1) {
+      setTimer4(10);
+      button_reading();
+    }
+
     fsm_mode_run();
 
     if(mode == 1) traffic_light_run();
@@ -297,7 +303,6 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if (htim->Instance == TIM2) {
     timerRun();
-    button_reading(); // để trên while (1)
   }
 }
 /* USER CODE END 4 */
