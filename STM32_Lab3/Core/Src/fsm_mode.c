@@ -11,6 +11,7 @@
 int mode = 1;
 int temp_red_time = 5;
 int temp_yellow_time = 2;
+int temp_green_time = 3;
 
 enum ButtonState {BUTTON_RELEASED, BUTTON_PRESSED};
 enum ButtonState btn1State = BUTTON_RELEASED;
@@ -26,12 +27,9 @@ void fsm_mode_run(void) {
                 mode++;
                 if (mode > 4) mode = 1;
 
-                if (mode == 2){
-                	temp_red_time = red_time;
-                }
-                else if(mode == 3){
-                	temp_yellow_time = yellow_time;
-                }
+                if (mode == 2) temp_red_time = red_time;
+                else if(mode == 3) temp_yellow_time = yellow_time;
+                else if(mode == 4) temp_green_time = green_time;
             }
             break;
         case BUTTON_PRESSED:
@@ -93,6 +91,37 @@ void fsm_mode_run(void) {
     		if(is_button_pressed(2)){
     			btn3State = BUTTON_PRESSED;
     			yellow_time = temp_yellow_time;
+    		}
+    		break;
+    	case BUTTON_PRESSED:
+    		if(!is_button_pressed(2)){
+    			btn3State = BUTTON_RELEASED;
+    		}
+    		break;
+    	}
+    }
+    // Xử lý nút BTN2 và BTN3 khi đang ở mode 03 (sửa thời gian đèn vàng)
+    else if(mode == 4){
+    	switch(btn2State){
+    	case BUTTON_RELEASED:
+    		if(is_button_pressed(1)){
+    			btn2State = BUTTON_PRESSED;
+    			temp_green_time++;
+    			if(temp_green_time > 99) temp_green_time = 1;
+    		}
+    		break;
+    	case BUTTON_PRESSED:
+    		if(!is_button_pressed(1)){
+    			btn2State = BUTTON_RELEASED;
+    		}
+    		break;
+    	}
+
+    	switch(btn3State){
+    	case BUTTON_RELEASED:
+    		if(is_button_pressed(2)){
+    			btn3State = BUTTON_PRESSED;
+    			green_time = temp_green_time;
     		}
     		break;
     	case BUTTON_PRESSED:
