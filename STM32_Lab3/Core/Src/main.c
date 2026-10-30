@@ -110,7 +110,7 @@ int main(void)
     switch (mode) {
            case 1: updateLEDBuffer(red_time, 1); break;
            case 2: updateLEDBuffer(temp_red_time, 2); break;
-           case 3: updateLEDBuffer(yellow_time, 3); break;
+           case 3: updateLEDBuffer(temp_yellow_time, 3); break;
            case 4: updateLEDBuffer(green_time, 4); break;
            default: break;
     }
