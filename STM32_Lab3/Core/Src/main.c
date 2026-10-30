@@ -25,6 +25,7 @@
 #include "software_timer.h"
 #include "input_reading.h"
 #include "fsm_mode.h"
+#include "display7seg.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +59,10 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int red_time = 5;
+int yellow_time = 2;
+int green_time = 3;
+int led_index = 0;
 /* USER CODE END 0 */
 
 /**
@@ -93,41 +97,58 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
   setTimer1(250);
+  setTimer2(250);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int last_mode = 0;
 
   while (1)
   {
     fsm_mode_run();
 
-    // Chi cap nhat den khi mode thay doi de tiet kiem CPU va on dinh muc logic
-    if (mode != last_mode) {
-      last_mode = mode;
+    switch (mode) {
+           case 1: updateLEDBuffer(red_time, 1); break;
+           case 2: updateLEDBuffer(red_time, 2); break;
+           case 3: updateLEDBuffer(yellow_time, 3); break;
+           case 4: updateLEDBuffer(green_time, 4); break;
+           default: break;
+    }
 
-      if (mode == 1) {
-        HAL_GPIO_WritePin(RED_1_GPIO_Port, RED_1_Pin, GPIO_PIN_RESET);       // Bat Do 1
-        HAL_GPIO_WritePin(YELLOW_1_GPIO_Port, YELLOW_1_Pin, GPIO_PIN_SET);   // Tat Vang 1
-        HAL_GPIO_WritePin(GREEN_1_GPIO_Port, GREEN_1_Pin, GPIO_PIN_SET);     // Tat Xanh 1
-        HAL_GPIO_WritePin(RED_2_GPIO_Port, RED_2_Pin, GPIO_PIN_SET);         // Tat Do 2
-      } else if (mode == 2) {
-        HAL_GPIO_WritePin(RED_1_GPIO_Port, RED_1_Pin, GPIO_PIN_SET);         // Tat Do 1
-        HAL_GPIO_WritePin(YELLOW_1_GPIO_Port, YELLOW_1_Pin, GPIO_PIN_RESET); // Bat Vang 1
-        HAL_GPIO_WritePin(GREEN_1_GPIO_Port, GREEN_1_Pin, GPIO_PIN_SET);     // Tat Xanh 1
-        HAL_GPIO_WritePin(RED_2_GPIO_Port, RED_2_Pin, GPIO_PIN_SET);         // Tat Do 2
-      } else if (mode == 3) {
-        HAL_GPIO_WritePin(RED_1_GPIO_Port, RED_1_Pin, GPIO_PIN_SET);         // Tat Do 1
-        HAL_GPIO_WritePin(YELLOW_1_GPIO_Port, YELLOW_1_Pin, GPIO_PIN_SET);   // Tat Vang 1
-        HAL_GPIO_WritePin(GREEN_1_GPIO_Port, GREEN_1_Pin, GPIO_PIN_RESET);   // Bat Xanh 1
-        HAL_GPIO_WritePin(RED_2_GPIO_Port, RED_2_Pin, GPIO_PIN_SET);         // Tat Do 2
-      } else if (mode == 4) {
-        HAL_GPIO_WritePin(RED_1_GPIO_Port, RED_1_Pin, GPIO_PIN_SET);         // Tat Do 1
-        HAL_GPIO_WritePin(YELLOW_1_GPIO_Port, YELLOW_1_Pin, GPIO_PIN_SET);   // Tat Vang 1
-        HAL_GPIO_WritePin(GREEN_1_GPIO_Port, GREEN_1_Pin, GPIO_PIN_SET);     // Tat Xanh 1
-        HAL_GPIO_WritePin(RED_2_GPIO_Port, RED_2_Pin, GPIO_PIN_RESET);       // Bat Do 2
-      }
+    if (timer2_flag == 1) {
+            setTimer2(250);
+            update7seg(led_index);
+            led_index = (led_index + 1) % 4;
+    }
+
+    if (timer1_flag == 1) {
+            setTimer1(250);
+            switch (mode) {
+                case 1:
+                    // Mode 1: Tat tat ca cac den
+                    HAL_GPIO_WritePin(GPIOA, RED_1_Pin | YELLOW_1_Pin | GREEN_1_Pin |
+                                             RED_2_Pin | YELLOW_2_Pin | GREEN_2_Pin, GPIO_PIN_SET);
+                    break;
+                case 2:
+                    // Mode 2: Nhap nhay 2 den Do, tat Vang va Xanh
+                    HAL_GPIO_TogglePin(GPIOA, RED_1_Pin | RED_2_Pin);
+                    HAL_GPIO_WritePin(GPIOA, YELLOW_1_Pin | GREEN_1_Pin |
+                                             YELLOW_2_Pin | GREEN_2_Pin, GPIO_PIN_SET);
+                    break;
+                case 3:
+                    // Mode 3: Nhap nhay 2 den Vang, tat Do va Xanh
+                    HAL_GPIO_TogglePin(GPIOA, YELLOW_1_Pin | YELLOW_2_Pin);
+                    HAL_GPIO_WritePin(GPIOA, RED_1_Pin | GREEN_1_Pin |
+                                             RED_2_Pin | GREEN_2_Pin, GPIO_PIN_SET);
+                    break;
+                case 4:
+                    // Mode 4: Nhap nhay 2 den Xanh, tat Do va Vang
+                    HAL_GPIO_TogglePin(GPIOA, GREEN_1_Pin | GREEN_2_Pin);
+                    HAL_GPIO_WritePin(GPIOA, RED_1_Pin | YELLOW_1_Pin |
+                                             RED_2_Pin | YELLOW_2_Pin, GPIO_PIN_SET);
+                    break;
+                default: break;
+            }
     }
 
     /* USER CODE END WHILE */
