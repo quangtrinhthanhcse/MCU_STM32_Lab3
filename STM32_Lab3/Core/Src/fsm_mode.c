@@ -7,6 +7,7 @@
 #include "main.h"
 #include "input_reading.h"
 #include "fsm_mode.h"
+#include "traffic_light.h"
 
 int mode = 1;
 int temp_red_time = 5;
@@ -26,7 +27,7 @@ void fsm_mode_run(void) {
                 btn1State = BUTTON_PRESSED;
                 mode++;
                 if (mode > 4) mode = 1;
-
+                if (mode == 1) traffic_light_init();
                 if (mode == 2) temp_red_time = red_time;
                 else if(mode == 3) temp_yellow_time = yellow_time;
                 else if(mode == 4) temp_green_time = green_time;

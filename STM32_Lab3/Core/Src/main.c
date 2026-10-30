@@ -26,6 +26,7 @@
 #include "input_reading.h"
 #include "fsm_mode.h"
 #include "display7seg.h"
+#include "traffic_light.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,6 +99,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
   setTimer1(250);
   setTimer2(250);
+  traffic_light_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,12 +109,15 @@ int main(void)
   {
     fsm_mode_run();
 
-    switch (mode) {
-           case 1: updateLEDBuffer(red_time, 1); break;
-           case 2: updateLEDBuffer(temp_red_time, 2); break;
-           case 3: updateLEDBuffer(temp_yellow_time, 3); break;
-           case 4: updateLEDBuffer(temp_green_time, 4); break;
-           default: break;
+    if(mode == 1) traffic_light_run();
+    else{
+		switch (mode) {
+			   case 1: updateLEDBuffer(red_time, 1); break;
+			   case 2: updateLEDBuffer(temp_red_time, 2); break;
+			   case 3: updateLEDBuffer(temp_yellow_time, 3); break;
+			   case 4: updateLEDBuffer(temp_green_time, 4); break;
+			   default: break;
+		}
     }
 
     if (timer2_flag == 1) {
@@ -126,8 +131,8 @@ int main(void)
             switch (mode) {
                 case 1:
                     // Mode 1: Tat tat ca cac den
-                    HAL_GPIO_WritePin(GPIOA, RED_1_Pin | YELLOW_1_Pin | GREEN_1_Pin |
-                                             RED_2_Pin | YELLOW_2_Pin | GREEN_2_Pin, GPIO_PIN_SET);
+//                    HAL_GPIO_WritePin(GPIOA, RED_1_Pin | YELLOW_1_Pin | GREEN_1_Pin |
+//                                             RED_2_Pin | YELLOW_2_Pin | GREEN_2_Pin, GPIO_PIN_SET);
                     break;
                 case 2:
                     // Mode 2: Nhap nhay 2 den Do, tat Vang va Xanh
@@ -292,7 +297,7 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if (htim->Instance == TIM2) {
     timerRun();
-    button_reading();
+    button_reading(); // để trên while (1)
   }
 }
 /* USER CODE END 4 */
